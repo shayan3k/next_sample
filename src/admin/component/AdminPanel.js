@@ -1,5 +1,8 @@
-import React from 'react';
+import React,{Fragment} from 'react';
 import MaterialTable from 'material-table';
+import Header from '../../student/containers/Header';
+import Footer from '../../student/containers/Footer';
+import Menu from '../../student/containers/Menu';
 
 export default function AdminPanel() {
   const [state, setState] = React.useState({
@@ -28,6 +31,11 @@ export default function AdminPanel() {
   });
 
   return (
+   
+    <Fragment>
+    <Header />
+    <Menu />
+    <main>
     <MaterialTable
       title="Editable Example"
       columns={state.columns}
@@ -76,5 +84,10 @@ export default function AdminPanel() {
           }),
       }}
     />
+  
+  </main>
+    <Footer />
+</Fragment>
   );
 }
+    
