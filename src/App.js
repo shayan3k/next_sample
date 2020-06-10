@@ -9,6 +9,9 @@ import Login from "./admin/views/Pages/Login";
 import Register from "./admin/views/Pages/Register";
 import Page404 from "./admin/views/Pages/Page404";
 import Page500 from "./admin/views/Pages/Page500";
+import AdminPanel from "./admin/component/AdminPanel";
+
+
 
 export default function App() {
   return (
@@ -25,19 +28,15 @@ export default function App() {
         {/* Admin panel routes */}
         <Route
           exact
-          path="/admin"
+          path="/admin/dashbord"
           name="داشبورد اصلی"
           render={(props) => <DefaultLayout {...props} />}
         />
+     
         <Route
-          path="/admin/login"
-          name="ورود به پنل کاربری"
-          render={(props) => <Login {...props} />}
-        />
-        <Route
-          path="/admin/register"
+          path="/admin/"
           name="ثبت نام"
-          render={(props) => <Register {...props} />}
+          render={(props) => <AdminPanel {...props} />}
         />
 
         {/* Student panel routes */}
