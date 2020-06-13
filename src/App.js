@@ -10,21 +10,52 @@ import Register from "./admin/views/Pages/Register";
 import Page404 from "./admin/views/Pages/Page404";
 import Page500 from "./admin/views/Pages/Page500";
 import AdminPanel from "./admin/component/AdminPanel";
+import MainPage from "./admin/component/MainPage";
+import { history } from '@/_helpers';
+import { authenticationService } from '@/_services';
+import { PrivateRoute } from '@/_components';
 
 
 
-export default function App() {
+class App extends React.Component {
+ 
+  constructor(props) {
+    super(props);
+
+    this.state = {
+        currentUser: null
+    };
+}
+
+componentDidMount() {
+    authenticationService.currentUser.subscribe(x => this.setState({ currentUser: x }));
+}
+
+logout() {
+    authenticationService.logout();
+    history.push('/login');
+}
+
+
+
+  render(){
+
+    const { currentUser } = this.state;
+
   return (
-    <Router>
+    <Router history={history} >
       <Switch>
         {/* Static page routes */}
+      
+      
+     
         <Route
           exact
           path="/"
           name="صفحه اصلی منشور دانش"
-          render={(props) => <HomePage {...props} />}
+          render={(props) => <MainPage {...props} />}
         />
-
+ 
         {/* Admin panel routes */}
         <Route
           exact
@@ -59,7 +90,11 @@ export default function App() {
           render={(props) => <Page500 {...props} />}
         />
         <Route name="ارور ۴۰۴" render={(props) => <Page404 {...props} />} />
-      </Switch>
+      
+        </Switch>
     </Router>
   );
 }
+}
+
+export default App;
