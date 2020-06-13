@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import {  BrowserRouter as Router, Link, Route,Switch } from 'react-router-dom';
 import StudentDashboard from "./student/routes/Dashboard";
 import Account from "./student/routes/Account";
 import HomePage from "./public/HomePage";
@@ -11,42 +11,29 @@ import Page404 from "./admin/views/Pages/Page404";
 import Page500 from "./admin/views/Pages/Page500";
 import AdminPanel from "./admin/component/AdminPanel";
 import MainPage from "./admin/component/MainPage";
-import { history } from '@/_helpers';
-import { authenticationService } from '@/_services';
-import { PrivateRoute } from '@/_components';
 
-
+import { isAuthenticated } from './repository';
 
 class App extends React.Component {
  
-  constructor(props) {
-    super(props);
 
-    this.state = {
-        currentUser: null
-    };
-}
-
-componentDidMount() {
-    authenticationService.currentUser.subscribe(x => this.setState({ currentUser: x }));
-}
-
-logout() {
-    authenticationService.logout();
-    history.push('/login');
-}
+  logOut(){
+    localStorage.removeItem('x-access-token');
+  }
 
 
 
   render(){
 
-    const { currentUser } = this.state;
+ 
 
   return (
-    <Router history={history} >
+    <Router >
       <Switch>
         {/* Static page routes */}
       
+      
+       
       
      
         <Route

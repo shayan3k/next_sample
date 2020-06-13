@@ -1,37 +1,130 @@
-import { BehaviorSubject } from 'rxjs';
+import axios from "axios";
+import secureStorage from "./Storage";
 
-import config from 'config';
-import { handleResponse } from '@/_helpers';
+//Move to Process.env
+const baseUrl = process.env.MIX_BASEURL;
 
-const currentUserSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('currentUser')));
+const loginRoute = process.env.MIX_AUTH_LOGIN;
+const logoutRoute = process.env.MIX_AUTH_LOGOUT;
+const meRoute = process.env.MIX_AUTH_ME;
 
-export const authenticationService = {
-    login,
-    logout,
-    currentUser: currentUserSubject.asObservable(),
-    get currentUserValue () { return currentUserSubject.value }
+// const loginRoute = "/auth/login";
+// const logoutRoute = "/auth/logout";
+// const meRoute = "/auth/me";
+
+export const JWTLogin = async data => {
+    // console.log(data);
+    return axios
+        .post(baseUrl + loginRoute, data)
+        .then(res => {
+            secureStorage.setItem("jwt", res.data.access_token);
+            secureStorage.setItem("name", res.data.name);
+            secureStorage.setItem("phonenumber", res.data.phonenumber);
+            secureStorage.setItem(
+                "is_admin",
+                res.data.is_admin ? "true" : "false"
+            );
+            // console.log("IS_ADMIN", res.data.is_admin ? "true" : "false");
+            // console.log("jwt TOKEN SET", secureStorage.getItem("jwt"));
+            return {
+                status: res.status,
+                message: "خوش آمدید"
+            };
+        })
+        .catch(err => {
+            console.log("The Error", err.response);
+            return {
+                status: err.response,
+                message:
+                    err.response.status == 401
+                        ? "شماره همراه و یا رمز عبور اشتباه است"
+                        : "متاسفانه امکان ورورد نمی باشد"
+            };
+        });
 };
 
-function login(phone_number , reference_phone_number) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone_number , reference_phone_number })
+export const JWTLogout = () => {
+    return new Promise((resolve, reject) => {
+        return axios
+            .post(baseUrl + logoutRoute, {}, JWTHeader())
+            .then(res => {
+                secureStorage.clear();
+                console.log("storage cleared");
+                return resolve({ status: res.status });
+            })
+            .catch(err => {
+                return reject({ status: err.status });
+            });
+    });
+};
+
+export const JWTValidate = async () => {
+    return new Promise((resolve, reject) => {
+        return axios
+            .post(baseUrl + meRoute, {}, JWTHeader())
+            .then(res => {
+                secureStorage.setItem("name", res.data.name);
+                secureStorage.setItem("phonenumber", res.data.phonenumber);
+                secureStorage.setItem(
+                    "is_admin",
+                    res.data.is_admin ? "true" : "false"
+                );
+                // console.log("Authenticated in AUTH", res);
+                return resolve({
+                    statusText: res.statusText,
+                    name: res.data.name,
+                    phonenumber: res.data.phonenumber
+                });
+            })
+            .catch(err => {
+                // console.log("NOT Authenticated in AUTH", err.response);
+                return reject(err);
+            });
+    });
+};
+
+export const JWTCheck = async () => {
+    // console.log("JWT CHECK");
+
+    return new Promise((resolve, reject) => {
+        return axios({
+            method: "POST",
+            url: baseUrl + meRoute,
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + secureStorage.getItem("jwt")
+            }
+        })
+            .then(res => {
+                secureStorage.setItem("name", res.data.name);
+                secureStorage.setItem("phonenumber", res.data.phonenumber);
+                secureStorage.setItem("user_id", res.data.id);
+                secureStorage.setItem(
+                    "is_admin",
+                    res.data.is_admin ? "true" : "false"
+                );
+                // console.log("Authenticated in AUTH", res);
+                return resolve({
+                    statusText: res.statusText,
+                    name: res.data.name,
+                    phonenumber: res.data.phonenumber
+                });
+            })
+            .catch(err => {
+                // console.log("NOT Authenticated in AUTH", err.response);
+                return reject(err);
+            });
+    });
+};
+
+export const JWTHeader = () => {
+    //Check if the user is verified
+    var authHeader = "Bearer " + secureStorage.getItem("jwt");
+
+    return {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: authHeader
+        }
     };
-
-    return fetch(`${config.apiUrl}/api/auth/register-start`, requestOptions)
-        .then(handleResponse)
-        .then(user => {
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            currentUserSubject.next(user);
-
-            return user;
-        });
-}
-
-function logout() {
-    // remove user from local storage to log user out
-    localStorage.removeItem('currentUser');
-    currentUserSubject.next(null);
-}
+};

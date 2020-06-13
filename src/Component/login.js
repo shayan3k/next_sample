@@ -1,23 +1,16 @@
-import React, { Fragment } from 'react'
-import './Account.scss'
-import Logo from '../../assets/images/logo.png';
-import { Col, Row, Button, Form, FormGroup, Label, Input } from 'reactstrap';
-import { Router, Route, Link } from 'react-router-dom';
+import React, { Component } from 'react';
+import { login } from '../respository';
 
-import { login } from '../../../repository';
-
-
-class Account extends React.Component {
-
+class Login extends Component {
     constructor() {
         super();
-        this.state = { phone_number: '', reference_phone_number: '' };
+        this.state = { name: '', password: '' };
         this.handleInputChange = this.handleInputChange.bind(this);
         this.submitLogin = this.submitLogin.bind(this);
     }
 
     handleInputChange(event) {
-        this.setState({ [event.target.phone_number]: event.target.value })
+        this.setState({ [event.target.name]: event.target.value })
     }
 
     submitLogin(event) {
@@ -57,4 +50,4 @@ class Account extends React.Component {
         );
     }
 }
-export default Account;
+export default Login;
