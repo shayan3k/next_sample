@@ -1,0 +1,22 @@
+{
+  "name": "manshour_danesh",
+  "private": true,
+  "proxy": "http://localhost:3000/",
+  "version": "1.0.0",
+  "description": "A PWA designed based on the client's requirments",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "ME",
+  "license": "GPLV3",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "next": "^9.5.2",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  }
+}
